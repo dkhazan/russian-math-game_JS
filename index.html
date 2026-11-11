@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Русские буквы и цифры</title>
+<style>
+body { margin:0; font-family:Arial, sans-serif; background:#f0e6d2; overflow:hidden; }
+#bg { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; object-fit:cover; }
+#ui { position:relative; z-index:1; text-align:center; padding-top:60px; min-height:100vh; }
+button { font-size:22px; padding:14px 28px; margin:10px; border:none; border-radius:14px; background:#ffb347; cursor:pointer; box-shadow:0 4px #e08a1e; }
+button:active { transform:translateY(2px); box-shadow:0 2px #e08a1e; }
+.grid { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin:20px auto; max-width:700px; }
+.feedback { font-size:28px; font-weight:bold; height:40px; margin:10px; }
+#gear { position:fixed; top:18px; left:18px; font-size:32px; background:none; border:none; cursor:pointer; z-index:10; }
+#settings { display:none; position:fixed; top:60px; left:18px; background:white; padding:15px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:10; text-align:left; }
+.return-btn { background:#ffd080; font-size:20px; }
+</style>
+</head>
+<body>
+<img id="bg" src="background.png" alt="">
+
+<div id="ui">
+  <div id="start-screen">
+    <h1>Привет!</h1>
+    <button id="btn-start">Учимся читать и писать</button>
+  </div>
+
+  <div id="menu" style="display:none;">
+    <button id="gear">⚙</button>
+    <div id="settings">
+      <div>Буквы: <button id="let-minus">-</button> <span id="let-val">3</span> <button id="let-plus">+</button></div>
+      <div>Фигуры: <button id="fig-minus">-</button> <span id="fig-val">10</span> <button id="fig-plus">+</button></div>
+      <div>Музыка: <button id="music-toggle">On</button></div>
+    </div>
+    <h1>Выбери игру</h1>
+    <div class="grid">
+      <button id="btn-letters">Найди букву</button>
+      <button id="btn-count">Посчитай фигурки</button>
+      <button id="btn-alphabet">Алфавит</button>
+      <button id="btn-numbers">Цифры</button>
+    </div>
+  </div>
+
+  <div id="game" style="display:none;"></div>
+</div>
+
+<script>
+const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split("");
+const numbers = Array.from({length: 21}, (_, i) => i);
+let numChoices = 3;
+let maxFigures = 10;
+let musicOn = true;
+let audioCtx = null;
+let sounds = {};
+let targetLetter = "";
+let targetNumber = 0;
+let waitingForContinue = false;
+let bgMusic = null;
+
+function getLetterFile(letter) {
+  if (letter === "Ё" || letter === "ё") return "letter_yo.ogg";
+  return `letter_${letter}.ogg`;
+}
+
+function unlockAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+}
+
+async function loadSound(name) {
+  if (sounds[name]) return;
+  try {
+    const res = await fetch(name);
+    const buf = await res.arrayBuffer();
+    sounds[name] = await audioCtx.decodeAudioData(buf);
+    console.log("Loaded:", name);
+  } catch (e) {
+    console.log("Could not load", name);
+  }
+}
+
+function playSound(name) {
+  if (!sounds[name] || !audioCtx) return;
+  const src = audioCtx.createBufferSource();
+  src.buffer = sounds[name];
+  src.connect(audioCtx.destination);
+  src.start();
+}
+
+function playBackgroundMusic() {
+  if (!musicOn || !sounds["music.ogg"]) return;
+  if (bgMusic) { try { bgMusic.stop(); } catch(e){} }
+  bgMusic = audioCtx.createBufferSource();
+  bgMusic.buffer = sounds["music.ogg"];
+  bgMusic.loop = true;
+  bgMusic.connect(audioCtx.destination);
+  bgMusic.start();
+}
+
+function stopBackgroundMusic() {
+  if (bgMusic) { try { bgMusic.stop(); } catch(e){} bgMusic = null; }
+}
+
+function showScreen(id) {
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("game").style.display = "none";
+  if (id) document.getElementById(id).style.display = "block";
+}
+
+function addGearToGame() {
+  const g = document.getElementById("game");
+  const gear = document.createElement("button");
+  gear.id = "gear-game";
+  gear.textContent = "⚙";
+  gear.style.position = "fixed";
+  gear.style.top = "18px";
+  gear.style.left = "18px";
+  gear.style.fontSize = "32px";
+  gear.style.background = "none";
+  gear.style.border = "none";
+  gear.style.cursor = "pointer";
+  gear.onclick = () => {
+    const s = document.getElementById("settings");
+    s.style.display = s.style.display === "block" ? "none" : "block";
+  };
+  g.appendChild(gear);
+}
+
+document.getElementById("btn-start").onclick = async () => {
+  unlockAudio();
+  await loadSound("welcome.ogg");
+  await loadSound("music.ogg");
+  await loadSound("find_letter.ogg");
+  await loadSound("how_many.ogg");
+  await loadSound("wrong.ogg");
+  await loadSound("success1.ogg");
+  await loadSound("success2.ogg");
+  await loadSound("success3.ogg");
+  await loadSound("success4.ogg");
+  await loadSound("success5.ogg");
+  playSound("welcome.ogg");
+  showScreen(null);
+  setTimeout(() => {
+    showScreen("menu");
+    playBackgroundMusic();
+  }, 3500);
+};
+
+document.getElementById("gear").onclick = () => {
+  const s = document.getElementById("settings");
+  s.style.display = s.style.display === "block" ? "none" : "block";
+};
+document.getElementById("let-minus").onclick = () => { numChoices = Math.max(3, numChoices - 1); document.getElementById("let-val").textContent = numChoices; };
+document.getElementById("let-plus").onclick = () => { numChoices = Math.min(6, numChoices + 1); document.getElementById("let-val").textContent = numChoices; };
+document.getElementById("fig-minus").onclick = () => { maxFigures = Math.max(5, maxFigures - 1); document.getElementById("fig-val").textContent = maxFigures; };
+document.getElementById("fig-plus").onclick = () => { maxFigures = Math.min(20, maxFigures + 1); document.getElementById("fig-val").textContent = maxFigures; };
+document.getElementById("music-toggle").onclick = function() {
+  musicOn = !musicOn;
+  this.textContent = musicOn ? "On" : "Off";
+  if (musicOn) playBackgroundMusic(); else stopBackgroundMusic();
+};
+
+function backToMenu() {
+  stopBackgroundMusic();
+  showScreen("menu");
+  playBackgroundMusic();
+}
+
+document.getElementById("btn-alphabet").onclick = async () => {
+  const g = document.getElementById("game");
+  g.innerHTML = `<h2>Алфавит</h2><button class="return-btn" onclick="backToMenu()">← другая игра</button><div class="grid" id="letters-grid"></div>`;
+  addGearToGame();
+  showScreen("game");
+  const cont = document.getElementById("letters-grid");
+  for (const l of letters) {
+    const file = getLetterFile(l);
+    await loadSound(file);
+    const b = document.createElement("button");
+    b.textContent = l;
+    b.style.fontSize = "30px";
+    b.style.minWidth = "60px";
+    b.onclick = () => playSound(file);
+    cont.appendChild(b);
+  }
+};
+
+document.getElementById("btn-numbers").onclick = async () => {
+  const g = document.getElementById("game");
+  g.innerHTML = `<h2>Цифры</h2><button class="return-btn" onclick="backToMenu()">← другая игра</button><div class="grid" id="numbers-grid"></div>`;
+  addGearToGame();
+  showScreen("game");
+  const cont = document.getElementById("numbers-grid");
+  for (const n of numbers) {
+    await loadSound(`number_${n}.ogg`);
+    const b = document.createElement("button");
+    b.textContent = n;
+    b.style.fontSize = "28px";
+    b.style.minWidth = "55px";
+    b.onclick = () => playSound(`number_${n}.ogg`);
+    cont.appendChild(b);
+  }
+};
+
+document.getElementById("btn-letters").onclick = startLetters;
+document.getElementById("btn-count").onclick = startCount;
+
+async function startLetters() {
+  targetLetter = letters[Math.floor(Math.random() * letters.length)];
+  waitingForContinue = false;
+  const letterFile = getLetterFile(targetLetter);
+  await loadSound(letterFile);
+  const choices = [targetLetter];
+  while (choices.length < numChoices) {
+    const l = letters[Math.floor(Math.random() * letters.length)];
+    if (!choices.includes(l)) choices.push(l);
+  }
+  choices.sort(() => Math.random() - 0.5);
+
+  const g = document.getElementById("game");
+  g.innerHTML = `
+    <h2>Найди букву</h2>
+    <div class="feedback" id="feedback"></div>
+    <button id="btn-repeat" style="background:#ffd080;">Повтори</button>
+    <div class="grid" id="choices"></div>
+    <button class="return-btn" onclick="backToMenu()">← другая игра</button>
+  `;
+  addGearToGame();
+  showScreen("game");
+
+  const cont = document.getElementById("choices");
+  choices.forEach(l => {
+    const b = document.createElement("button");
+    b.textContent = l;
+    b.style.fontSize = "36px";
+    b.style.minWidth = "70px";
+    b.onclick = () => checkLetter(l);
+    cont.appendChild(b);
+  });
+
+  playSound("find_letter.ogg");
+  setTimeout(() => playSound(letterFile), 3500);
+  document.getElementById("btn-repeat").onclick = () => playSound(letterFile);
+}
+
+function checkLetter(chosen) {
+  if (waitingForContinue) return;
+  const fb = document.getElementById("feedback");
+  if (chosen === targetLetter) {
+    fb.textContent = "";
+    const n = Math.floor(Math.random() * 5) + 1;
+    playSound(`success${n}.ogg`);
+    waitingForContinue = true;
+    document.getElementById("btn-repeat").textContent = "Продолжить";
+    document.getElementById("btn-repeat").onclick = startLetters;
+  } else {
+    fb.textContent = "Попробуй ещё";
+    fb.style.color = "orange";
+    playSound("wrong.ogg");
+  }
+}
+
+async function startCount() {
+  targetNumber = Math.floor(Math.random() * (maxFigures + 1));
+  waitingForContinue = false;
+  const choices = [targetNumber];
+  while (choices.length < 4) {
+    const n = Math.floor(Math.random() * (maxFigures + 1));
+    if (!choices.includes(n)) choices.push(n);
+  }
+  choices.sort(() => Math.random() - 0.5);
+
+  const g = document.getElementById("game");
+  g.innerHTML = `
+    <h2>Сколько фигур?</h2>
+    <div id="figures" style="height:120px;"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="grid" id="choices"></div>
+    <button class="return-btn" onclick="backToMenu()">← другая игра</button>
+  `;
+  addGearToGame();
+  showScreen("game");
+
+  const fig = document.getElementById("figures");
+  for (let i = 0; i < targetNumber; i++) {
+    const s = document.createElement("span");
+    s.textContent = "●";
+    s.style.fontSize = "40px";
+    s.style.margin = "5px";
+    s.style.color = "#ff8c42";
+    fig.appendChild(s);
+  }
+
+  const cont = document.getElementById("choices");
+  choices.forEach(n => {
+    const b = document.createElement("button");
+    b.textContent = n;
+    b.style.fontSize = "32px";
+    b.style.minWidth = "60px";
+    b.onclick = () => checkNumber(n);
+    cont.appendChild(b);
+  });
+
+  playSound("how_many.ogg");
+}
+
+function checkNumber(chosen) {
+  if (waitingForContinue) return;
+  const fb = document.getElementById("feedback");
+  if (chosen === targetNumber) {
+    fb.textContent = "";
+    const n = Math.floor(Math.random() * 5) + 1;
+    playSound(`success${n}.ogg`);
+    waitingForContinue = true;
+    setTimeout(startCount, 1500);
+  } else {
+    fb.textContent = "Попробуй ещё";
+    fb.style.color = "orange";
+    playSound("wrong.ogg");
+  }
+}
+</script>
+</body>
+</html>
