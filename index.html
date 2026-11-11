@@ -1,324 +1,377 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Русские буквы и цифры</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Учимся читать и считать</title>
 <style>
-body { margin:0; font-family:Arial, sans-serif; background:#f0e6d2; overflow:hidden; }
-#bg { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; object-fit:cover; }
-#ui { position:relative; z-index:1; text-align:center; padding-top:60px; min-height:100vh; }
-button { font-size:22px; padding:14px 28px; margin:10px; border:none; border-radius:14px; background:#ffb347; cursor:pointer; box-shadow:0 4px #e08a1e; }
-button:active { transform:translateY(2px); box-shadow:0 2px #e08a1e; }
-.grid { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin:20px auto; max-width:700px; }
-.feedback { font-size:28px; font-weight:bold; height:40px; margin:10px; }
-#gear { position:fixed; top:18px; left:18px; font-size:32px; background:none; border:none; cursor:pointer; z-index:10; }
-#settings { display:none; position:fixed; top:60px; left:18px; background:white; padding:15px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:10; text-align:left; }
-.return-btn { background:#ffd080; font-size:20px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #e8f4fc url('background.png') no-repeat center center fixed;
+  background-size: cover;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+#gear {
+  position: fixed; top: 12px; right: 12px; font-size: 30px; cursor: pointer; z-index: 1000;
+  background: rgba(255,255,255,0.92); border-radius: 50%; width: 50px; height: 50px;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+#back-btn {
+  position: fixed; top: 12px; left: 12px; z-index: 1000;
+  font-size: 17px; padding: 8px 14px; background: #4a90e2; color: white;
+  border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  display: none;
+}
+#settings {
+  display: none; position: fixed; top: 70px; right: 12px; background: white; padding: 14px;
+  border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); z-index: 999; text-align: left; min-width: 210px;
+}
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 55px 8px 15px;
+  text-align: center;
+}
+button {
+  font-size: 24px; padding: 14px 28px; margin: 10px; border: none; border-radius: 14px;
+  background: #4a90e2; color: white; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+button:hover { background: #357abd; }
+.letter-grid, .number-grid { 
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 16px 0; 
+}
+.letter, .num {
+  width: 72px; height: 72px; font-size: 36px; display: flex; align-items: center; justify-content: center;
+  background: white; border-radius: 14px; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  flex: 0 0 auto;
+}
+.letter:hover, .num:hover { background: #d0e8ff; }
+#start-btn { font-size: 28px; padding: 18px 36px; background: #ff6b6b; }
+#menu, #games, #letters, #numbers, #alphabet, #count { display: none; width: 100%; }
+.setting-row { margin: 8px 0; display: flex; align-items: center; gap: 8px; }
+.setting-row button { font-size: 18px; padding: 4px 10px; margin: 0; }
+#music-btn { background: #5cb85c; font-size: 16px; padding: 5px 12px; }
+#shapes-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 18px auto;
+  max-width: 92%;
+}
+.shape-box {
+  width: 68px;
+  height: 68px;
+  font-size: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.95);
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+#repeat-btn { font-size: 22px; padding: 12px 24px; margin: 10px 0; }
+h2 { margin: 6px 0 8px; font-size: 28px; }
+
+@media (max-width: 600px) {
+  .letter, .num { width: 64px; height: 64px; font-size: 32px; }
+  .shape-box { width: 60px; height: 60px; font-size: 42px; }
+  button { font-size: 20px; padding: 12px 24px; margin: 8px; }
+  #start-btn { font-size: 24px; padding: 16px 32px; }
+  #app { padding-top: 50px; }
+  h2 { font-size: 26px; }
+}
 </style>
 </head>
 <body>
-<img id="bg" src="background.png" alt="">
-
-<div id="ui">
-  <div id="start-screen">
-    <h1>Привет!</h1>
-    <button id="btn-start">Учимся читать и писать</button>
+<div id="gear" onclick="toggleSettings()">⚙️</div>
+<button id="back-btn" onclick="backToMenu()">← другая игра</button>
+<div id="settings">
+  <p><strong>Настройки</strong></p>
+  <div class="setting-row">
+    Music: <button id="music-btn" onclick="toggleMusic()">Вкл</button>
   </div>
-
-  <div id="menu" style="display:none;">
-    <button id="gear">⚙</button>
-    <div id="settings">
-      <div>Буквы: <button id="let-minus">-</button> <span id="let-val">3</span> <button id="let-plus">+</button></div>
-      <div>Фигуры: <button id="fig-minus">-</button> <span id="fig-val">10</span> <button id="fig-plus">+</button></div>
-      <div>Музыка: <button id="music-toggle">On</button></div>
-    </div>
-    <h1>Выбери игру</h1>
-    <div class="grid">
-      <button id="btn-letters">Найди букву</button>
-      <button id="btn-count">Посчитай фигурки</button>
-      <button id="btn-alphabet">Алфавит</button>
-      <button id="btn-numbers">Цифры</button>
-    </div>
+  <div class="setting-row">
+    Letters: <button onclick="changeCount('letter', -1)">−</button>
+    <span id="letter-display">4</span>
+    <button onclick="changeCount('letter', 1)">+</button>
   </div>
+  <div class="setting-row">
+    Shapes: <button onclick="changeCount('shapes', -1)">−</button>
+    <span id="shapes-display-setting">5</span>
+    <button onclick="changeCount('shapes', 1)">+</button>
+  </div>
+  <br>
+  <button onclick="toggleSettings()" style="font-size:15px;padding:6px 12px;">Закрыть</button>
+</div>
 
-  <div id="game" style="display:none;"></div>
+<div id="app">
+  <div id="menu">
+    <button id="start-btn" onclick="startWelcome()">Учимся читать и писать</button>
+  </div>
+  <div id="games">
+    <button onclick="startGame('letters')">Буквы</button>
+    <button onclick="startGame('numbers')">Считай</button>
+    <button onclick="startGame('alphabet')">Алфавит</button>
+    <button onclick="startGame('count')">Цифры</button>
+  </div>
+  <div id="letters">
+    <h2>Найди букву</h2>
+    <button id="repeat-btn" onclick="playCurrentLetter()">Повтори</button>
+    <div class="letter-grid" id="letter-choices"></div>
+  </div>
+  <div id="numbers">
+    <div id="number-question"></div>
+    <div class="number-grid" id="number-choices"></div>
+  </div>
+  <div id="alphabet">
+    <div class="letter-grid" id="alphabet-grid"></div>
+  </div>
+  <div id="count">
+    <div class="number-grid" id="count-grid"></div>
+  </div>
 </div>
 
 <script>
 const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split("");
-const numbers = Array.from({length: 21}, (_, i) => i);
-let numChoices = 3;
-let maxFigures = 10;
-let musicOn = true;
-let audioCtx = null;
-let sounds = {};
-let targetLetter = "";
-let targetNumber = 0;
-let waitingForContinue = false;
-let bgMusic = null;
+const numbers = Array.from({length:21}, (_,i)=>i);
+const shapes = ["●", "■", "▲", "★", "♦", "♥"];
+const colors = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6", "#e91e63", "#00bcd4", "#ff5722", "#8bc34a", "#673ab7"];
+let currentLetter = "";
+let welcomeSound = new Audio("welcome.ogg");
+let bgMusic = new Audio("music.ogg");
+bgMusic.loop = true;
+bgMusic.volume = 0.06;
+let audioUnlocked = false;
+let musicEnabled = true;
+let welcomePlayed = false;
+let letterChoices = 4;
+let maxShapes = 5;
 
 function getLetterFile(letter) {
-  if (letter === "Ё" || letter === "ё") return "letter_yo.ogg";
-  return `letter_${letter}.ogg`;
+  return letter === "Ё" ? "letter_yo.ogg" : `letter_${letter}.ogg`;
 }
 
 function unlockAudio() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (audioCtx.state === "suspended") audioCtx.resume();
-}
-
-async function loadSound(name) {
-  if (sounds[name]) return;
-  try {
-    const res = await fetch(name);
-    const buf = await res.arrayBuffer();
-    sounds[name] = await audioCtx.decodeAudioData(buf);
-    console.log("Loaded:", name);
-  } catch (e) {
-    console.log("Could not load", name);
-  }
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  new Audio().play().catch(()=>{});
 }
 
 function playSound(name) {
-  if (!sounds[name] || !audioCtx) return;
-  const src = audioCtx.createBufferSource();
-  src.buffer = sounds[name];
-  src.connect(audioCtx.destination);
-  src.start();
+  if (!audioUnlocked) return null;
+  const a = new Audio(name);
+  a.play().catch(()=>{});
+  return a;
 }
 
-function playBackgroundMusic() {
-  if (!musicOn || !sounds["music.ogg"]) return;
-  if (bgMusic) { try { bgMusic.stop(); } catch(e){} }
-  bgMusic = audioCtx.createBufferSource();
-  bgMusic.buffer = sounds["music.ogg"];
-  bgMusic.loop = true;
-  bgMusic.connect(audioCtx.destination);
-  bgMusic.start();
+function playSuccess() {
+  const n = Math.floor(Math.random() * 5) + 1;
+  return playSound(`success${n}.ogg`);
 }
 
-function stopBackgroundMusic() {
-  if (bgMusic) { try { bgMusic.stop(); } catch(e){} bgMusic = null; }
+function showGear(show) {
+  document.getElementById("gear").style.display = show ? "flex" : "none";
+  if (!show) document.getElementById("settings").style.display = "none";
 }
 
-function showScreen(id) {
-  document.getElementById("start-screen").style.display = "none";
-  document.getElementById("menu").style.display = "none";
-  document.getElementById("game").style.display = "none";
-  if (id) document.getElementById(id).style.display = "block";
+function showBack(show) {
+  document.getElementById("back-btn").style.display = show ? "block" : "none";
 }
 
-function addGearToGame() {
-  const g = document.getElementById("game");
-  const gear = document.createElement("button");
-  gear.id = "gear-game";
-  gear.textContent = "⚙";
-  gear.style.position = "fixed";
-  gear.style.top = "18px";
-  gear.style.left = "18px";
-  gear.style.fontSize = "32px";
-  gear.style.background = "none";
-  gear.style.border = "none";
-  gear.style.cursor = "pointer";
-  gear.onclick = () => {
-    const s = document.getElementById("settings");
-    s.style.display = s.style.display === "block" ? "none" : "block";
-  };
-  g.appendChild(gear);
+function toggleSettings() {
+  const panel = document.getElementById("settings");
+  panel.style.display = panel.style.display === "block" ? "none" : "block";
 }
 
-document.getElementById("btn-start").onclick = async () => {
+function toggleMusic() {
+  musicEnabled = !musicEnabled;
+  document.getElementById("music-btn").textContent = musicEnabled ? "Вкл" : "Выкл";
+  document.getElementById("music-btn").style.background = musicEnabled ? "#5cb85c" : "#d9534f";
+  if (musicEnabled && document.getElementById("games").style.display === "block") {
+    playBgMusic();
+  } else {
+    stopMusic();
+  }
+}
+
+function playBgMusic() {
+  if (!musicEnabled || !audioUnlocked) return;
+  stopMusic();
+  bgMusic.currentTime = 0;
+  bgMusic.play().catch(()=>{});
+}
+
+function stopMusic() {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+  welcomeSound.pause();
+  welcomeSound.currentTime = 0;
+}
+
+function changeCount(type, delta) {
+  if (type === "letter") {
+    letterChoices = Math.max(3, Math.min(10, letterChoices + delta));
+    document.getElementById("letter-display").textContent = letterChoices;
+  } else {
+    maxShapes = Math.max(1, Math.min(12, maxShapes + delta));
+    document.getElementById("shapes-display-setting").textContent = maxShapes;
+  }
+}
+
+function startWelcome() {
   unlockAudio();
-  await loadSound("welcome.ogg");
-  await loadSound("music.ogg");
-  await loadSound("find_letter.ogg");
-  await loadSound("how_many.ogg");
-  await loadSound("wrong.ogg");
-  await loadSound("success1.ogg");
-  await loadSound("success2.ogg");
-  await loadSound("success3.ogg");
-  await loadSound("success4.ogg");
-  await loadSound("success5.ogg");
-  playSound("welcome.ogg");
-  showScreen(null);
-  setTimeout(() => {
-    showScreen("menu");
-    playBackgroundMusic();
-  }, 3500);
-};
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("games").style.display = "block";
+  showGear(true);
+  showBack(false);
 
-document.getElementById("gear").onclick = () => {
-  const s = document.getElementById("settings");
-  s.style.display = s.style.display === "block" ? "none" : "block";
-};
-document.getElementById("let-minus").onclick = () => { numChoices = Math.max(3, numChoices - 1); document.getElementById("let-val").textContent = numChoices; };
-document.getElementById("let-plus").onclick = () => { numChoices = Math.min(6, numChoices + 1); document.getElementById("let-val").textContent = numChoices; };
-document.getElementById("fig-minus").onclick = () => { maxFigures = Math.max(5, maxFigures - 1); document.getElementById("fig-val").textContent = maxFigures; };
-document.getElementById("fig-plus").onclick = () => { maxFigures = Math.min(20, maxFigures + 1); document.getElementById("fig-val").textContent = maxFigures; };
-document.getElementById("music-toggle").onclick = function() {
-  musicOn = !musicOn;
-  this.textContent = musicOn ? "On" : "Off";
-  if (musicOn) playBackgroundMusic(); else stopBackgroundMusic();
-};
+  if (!welcomePlayed) {
+    welcomePlayed = true;
+    welcomeSound.play().catch(()=>{});
+    welcomeSound.addEventListener("ended", () => {
+      if (musicEnabled) playBgMusic();
+    }, { once: true });
+  } else {
+    if (musicEnabled) playBgMusic();
+  }
+}
+
+function startGame(game) {
+  stopMusic();
+  showGear(false);
+  showBack(true);
+  document.getElementById("games").style.display = "none";
+  document.getElementById(game).style.display = "block";
+  if (game === "letters") startLetters();
+  if (game === "numbers") startNumbers();
+  if (game === "alphabet") buildAlphabet();
+  if (game === "count") buildCount();
+}
 
 function backToMenu() {
-  stopBackgroundMusic();
-  showScreen("menu");
-  playBackgroundMusic();
+  ["letters","numbers","alphabet","count"].forEach(id => document.getElementById(id).style.display = "none");
+  document.getElementById("games").style.display = "block";
+  showGear(true);
+  showBack(false);
+  if (musicEnabled) playBgMusic();
 }
 
-document.getElementById("btn-alphabet").onclick = async () => {
-  const g = document.getElementById("game");
-  g.innerHTML = `<h2>Алфавит</h2><button class="return-btn" onclick="backToMenu()">← другая игра</button><div class="grid" id="letters-grid"></div>`;
-  addGearToGame();
-  showScreen("game");
-  const cont = document.getElementById("letters-grid");
-  for (const l of letters) {
-    const file = getLetterFile(l);
-    await loadSound(file);
-    const b = document.createElement("button");
-    b.textContent = l;
-    b.style.fontSize = "30px";
-    b.style.minWidth = "60px";
-    b.onclick = () => playSound(file);
-    cont.appendChild(b);
+function startLetters() {
+  currentLetter = letters[Math.floor(Math.random()*letters.length)];
+  document.getElementById("repeat-btn").textContent = "Повтори";
+  document.getElementById("repeat-btn").onclick = playCurrentLetter;
+  buildLetterChoices();
+  const question = playSound("find_letter.ogg");
+  if (question) {
+    question.addEventListener("ended", () => setTimeout(playCurrentLetter, 200), { once: true });
+  } else {
+    setTimeout(playCurrentLetter, 1800);
   }
-};
+}
 
-document.getElementById("btn-numbers").onclick = async () => {
-  const g = document.getElementById("game");
-  g.innerHTML = `<h2>Цифры</h2><button class="return-btn" onclick="backToMenu()">← другая игра</button><div class="grid" id="numbers-grid"></div>`;
-  addGearToGame();
-  showScreen("game");
-  const cont = document.getElementById("numbers-grid");
-  for (const n of numbers) {
-    await loadSound(`number_${n}.ogg`);
-    const b = document.createElement("button");
-    b.textContent = n;
-    b.style.fontSize = "28px";
-    b.style.minWidth = "55px";
-    b.onclick = () => playSound(`number_${n}.ogg`);
-    cont.appendChild(b);
-  }
-};
+function playCurrentLetter() {
+  playSound(getLetterFile(currentLetter));
+}
 
-document.getElementById("btn-letters").onclick = startLetters;
-document.getElementById("btn-count").onclick = startCount;
-
-async function startLetters() {
-  targetLetter = letters[Math.floor(Math.random() * letters.length)];
-  waitingForContinue = false;
-  const letterFile = getLetterFile(targetLetter);
-  await loadSound(letterFile);
-  const choices = [targetLetter];
-  while (choices.length < numChoices) {
-    const l = letters[Math.floor(Math.random() * letters.length)];
+function buildLetterChoices() {
+  const container = document.getElementById("letter-choices");
+  container.innerHTML = "";
+  const choices = [currentLetter];
+  while (choices.length < letterChoices) {
+    const l = letters[Math.floor(Math.random()*letters.length)];
     if (!choices.includes(l)) choices.push(l);
   }
-  choices.sort(() => Math.random() - 0.5);
-
-  const g = document.getElementById("game");
-  g.innerHTML = `
-    <h2>Найди букву</h2>
-    <div class="feedback" id="feedback"></div>
-    <button id="btn-repeat" style="background:#ffd080;">Повтори</button>
-    <div class="grid" id="choices"></div>
-    <button class="return-btn" onclick="backToMenu()">← другая игра</button>
-  `;
-  addGearToGame();
-  showScreen("game");
-
-  const cont = document.getElementById("choices");
+  choices.sort(() => Math.random()-0.5);
   choices.forEach(l => {
-    const b = document.createElement("button");
-    b.textContent = l;
-    b.style.fontSize = "36px";
-    b.style.minWidth = "70px";
-    b.onclick = () => checkLetter(l);
-    cont.appendChild(b);
+    const div = document.createElement("div");
+    div.className = "letter";
+    div.textContent = l;
+    div.onclick = () => {
+      if (l === currentLetter) {
+        playSuccess();
+        document.getElementById("repeat-btn").textContent = "Продолжить";
+        document.getElementById("repeat-btn").onclick = startLetters;
+      } else {
+        playSound("wrong.ogg");
+      }
+    };
+    container.appendChild(div);
   });
-
-  playSound("find_letter.ogg");
-  setTimeout(() => playSound(letterFile), 3500);
-  document.getElementById("btn-repeat").onclick = () => playSound(letterFile);
 }
 
-function checkLetter(chosen) {
-  if (waitingForContinue) return;
-  const fb = document.getElementById("feedback");
-  if (chosen === targetLetter) {
-    fb.textContent = "";
-    const n = Math.floor(Math.random() * 5) + 1;
-    playSound(`success${n}.ogg`);
-    waitingForContinue = true;
-    document.getElementById("btn-repeat").textContent = "Продолжить";
-    document.getElementById("btn-repeat").onclick = startLetters;
-  } else {
-    fb.textContent = "Попробуй ещё";
-    fb.style.color = "orange";
-    playSound("wrong.ogg");
-  }
-}
-
-async function startCount() {
-  targetNumber = Math.floor(Math.random() * (maxFigures + 1));
-  waitingForContinue = false;
-  const choices = [targetNumber];
-  while (choices.length < 4) {
-    const n = Math.floor(Math.random() * (maxFigures + 1));
-    if (!choices.includes(n)) choices.push(n);
-  }
-  choices.sort(() => Math.random() - 0.5);
-
-  const g = document.getElementById("game");
-  g.innerHTML = `
-    <h2>Сколько фигур?</h2>
-    <div id="figures" style="height:120px;"></div>
-    <div class="feedback" id="feedback"></div>
-    <div class="grid" id="choices"></div>
-    <button class="return-btn" onclick="backToMenu()">← другая игра</button>
-  `;
-  addGearToGame();
-  showScreen("game");
-
-  const fig = document.getElementById("figures");
-  for (let i = 0; i < targetNumber; i++) {
-    const s = document.createElement("span");
-    s.textContent = "●";
-    s.style.fontSize = "40px";
-    s.style.margin = "5px";
-    s.style.color = "#ff8c42";
-    fig.appendChild(s);
-  }
-
-  const cont = document.getElementById("choices");
-  choices.forEach(n => {
-    const b = document.createElement("button");
-    b.textContent = n;
-    b.style.fontSize = "32px";
-    b.style.minWidth = "60px";
-    b.onclick = () => checkNumber(n);
-    cont.appendChild(b);
-  });
-
+function startNumbers() {
   playSound("how_many.ogg");
+  const count = Math.floor(Math.random() * maxShapes) + 1;
+  const shape = shapes[Math.floor(Math.random() * shapes.length)];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  let shapesHtml = "";
+  for (let i = 0; i < count; i++) {
+    shapesHtml += `<div class="shape-box" style="color:${color}">${shape}</div>`;
+  }
+  document.getElementById("number-question").innerHTML =
+    `<h2>Сколько фигур?</h2><div id="shapes-container">${shapesHtml}</div>`;
+  const container = document.getElementById("number-choices");
+  container.innerHTML = "";
+  let opts = [count];
+  while (opts.length < 4) {
+    const x = Math.floor(Math.random() * 12) + 1;
+    if (!opts.includes(x)) opts.push(x);
+  }
+  opts.sort(() => Math.random()-0.5).forEach(num => {
+    const div = document.createElement("div");
+    div.className = "num";
+    div.textContent = num;
+    div.onclick = () => {
+      if (num === count) {
+        const success = playSuccess();
+        if (success) {
+          success.addEventListener("ended", () => startNumbers(), { once: true });
+        } else {
+          setTimeout(startNumbers, 800);
+        }
+      } else playSound("wrong.ogg");
+    };
+    container.appendChild(div);
+  });
 }
 
-function checkNumber(chosen) {
-  if (waitingForContinue) return;
-  const fb = document.getElementById("feedback");
-  if (chosen === targetNumber) {
-    fb.textContent = "";
-    const n = Math.floor(Math.random() * 5) + 1;
-    playSound(`success${n}.ogg`);
-    waitingForContinue = true;
-    setTimeout(startCount, 1500);
-  } else {
-    fb.textContent = "Попробуй ещё";
-    fb.style.color = "orange";
-    playSound("wrong.ogg");
-  }
+function buildAlphabet() {
+  const container = document.getElementById("alphabet-grid");
+  container.innerHTML = "";
+  letters.forEach(l => {
+    const div = document.createElement("div");
+    div.className = "letter";
+    div.textContent = l;
+    div.onclick = () => playSound(getLetterFile(l));
+    container.appendChild(div);
+  });
 }
+
+function buildCount() {
+  const container = document.getElementById("count-grid");
+  container.innerHTML = "";
+  numbers.forEach(n => {
+    const div = document.createElement("div");
+    div.className = "num";
+    div.textContent = n;
+    div.onclick = () => playSound(`number_${n}.ogg`);
+    container.appendChild(div);
+  });
+}
+
+document.getElementById("menu").style.display = "block";
+showGear(true);
+showBack(false);
 </script>
 </body>
 </html>
