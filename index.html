@@ -1,377 +1,395 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Учимся читать и считать</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: #e8f4fc url('background.png') no-repeat center center fixed;
-  background-size: cover;
-  font-family: Arial, sans-serif;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-#gear {
-  position: fixed; top: 12px; right: 12px; font-size: 30px; cursor: pointer; z-index: 1000;
-  background: rgba(255,255,255,0.92); border-radius: 50%; width: 50px; height: 50px;
-  display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-#back-btn {
-  position: fixed; top: 12px; left: 12px; z-index: 1000;
-  font-size: 17px; padding: 8px 14px; background: #4a90e2; color: white;
-  border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  display: none;
-}
-#settings {
-  display: none; position: fixed; top: 70px; right: 12px; background: white; padding: 14px;
-  border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); z-index: 999; text-align: left; min-width: 210px;
-}
-#app {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 55px 8px 15px;
-  text-align: center;
-}
-button {
-  font-size: 24px; padding: 14px 28px; margin: 10px; border: none; border-radius: 14px;
-  background: #4a90e2; color: white; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-}
-button:hover { background: #357abd; }
-.letter-grid, .number-grid { 
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 16px 0; 
-}
-.letter, .num {
-  width: 72px; height: 72px; font-size: 36px; display: flex; align-items: center; justify-content: center;
-  background: white; border-radius: 14px; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-  flex: 0 0 auto;
-}
-.letter:hover, .num:hover { background: #d0e8ff; }
-#start-btn { font-size: 28px; padding: 18px 36px; background: #ff6b6b; }
-#menu, #games, #letters, #numbers, #alphabet, #count { display: none; width: 100%; }
-.setting-row { margin: 8px 0; display: flex; align-items: center; gap: 8px; }
-.setting-row button { font-size: 18px; padding: 4px 10px; margin: 0; }
-#music-btn { background: #5cb85c; font-size: 16px; padding: 5px 12px; }
-#shapes-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin: 18px auto;
-  max-width: 92%;
-}
-.shape-box {
-  width: 68px;
-  height: 68px;
-  font-size: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.95);
-  border-radius: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
-#repeat-btn { font-size: 22px; padding: 12px 24px; margin: 10px 0; }
-h2 { margin: 6px 0 8px; font-size: 28px; }
-
-@media (max-width: 600px) {
-  .letter, .num { width: 64px; height: 64px; font-size: 32px; }
-  .shape-box { width: 60px; height: 60px; font-size: 42px; }
-  button { font-size: 20px; padding: 12px 24px; margin: 8px; }
-  #start-btn { font-size: 24px; padding: 16px 32px; }
-  #app { padding-top: 50px; }
-  h2 { font-size: 26px; }
-}
-</style>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.7">
+  <style type="text/css">
+    body {background-color: #e3f1fb}
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Arial; -webkit-text-stroke: #000000; background-color: #e3f1fb}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Arial; -webkit-text-stroke: #000000; background-color: #e3f1fb; min-height: 14.0px}
+    span.s1 {font-kerning: none}
+  </style>
 </head>
 <body>
-<div id="gear" onclick="toggleSettings()">⚙️</div>
-<button id="back-btn" onclick="backToMenu()">← другая игра</button>
-<div id="settings">
-  <p><strong>Настройки</strong></p>
-  <div class="setting-row">
-    Music: <button id="music-btn" onclick="toggleMusic()">Вкл</button>
-  </div>
-  <div class="setting-row">
-    Letters: <button onclick="changeCount('letter', -1)">−</button>
-    <span id="letter-display">4</span>
-    <button onclick="changeCount('letter', 1)">+</button>
-  </div>
-  <div class="setting-row">
-    Shapes: <button onclick="changeCount('shapes', -1)">−</button>
-    <span id="shapes-display-setting">5</span>
-    <button onclick="changeCount('shapes', 1)">+</button>
-  </div>
-  <br>
-  <button onclick="toggleSettings()" style="font-size:15px;padding:6px 12px;">Закрыть</button>
-</div>
-
-<div id="app">
-  <div id="menu">
-    <button id="start-btn" onclick="startWelcome()">Учимся читать и писать</button>
-  </div>
-  <div id="games">
-    <button onclick="startGame('letters')">Буквы</button>
-    <button onclick="startGame('numbers')">Считай</button>
-    <button onclick="startGame('alphabet')">Алфавит</button>
-    <button onclick="startGame('count')">Цифры</button>
-  </div>
-  <div id="letters">
-    <h2>Найди букву</h2>
-    <button id="repeat-btn" onclick="playCurrentLetter()">Повтори</button>
-    <div class="letter-grid" id="letter-choices"></div>
-  </div>
-  <div id="numbers">
-    <div id="number-question"></div>
-    <div class="number-grid" id="number-choices"></div>
-  </div>
-  <div id="alphabet">
-    <div class="letter-grid" id="alphabet-grid"></div>
-  </div>
-  <div id="count">
-    <div class="number-grid" id="count-grid"></div>
-  </div>
-</div>
-
-<script>
-const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split("");
-const numbers = Array.from({length:21}, (_,i)=>i);
-const shapes = ["●", "■", "▲", "★", "♦", "♥"];
-const colors = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6", "#e91e63", "#00bcd4", "#ff5722", "#8bc34a", "#673ab7"];
-let currentLetter = "";
-let welcomeSound = new Audio("welcome.ogg");
-let bgMusic = new Audio("music.ogg");
-bgMusic.loop = true;
-bgMusic.volume = 0.06;
-let audioUnlocked = false;
-let musicEnabled = true;
-let welcomePlayed = false;
-let letterChoices = 4;
-let maxShapes = 5;
-
-function getLetterFile(letter) {
-  return letter === "Ё" ? "letter_yo.ogg" : `letter_${letter}.ogg`;
-}
-
-function unlockAudio() {
-  if (audioUnlocked) return;
-  audioUnlocked = true;
-  new Audio().play().catch(()=>{});
-}
-
-function playSound(name) {
-  if (!audioUnlocked) return null;
-  const a = new Audio(name);
-  a.play().catch(()=>{});
-  return a;
-}
-
-function playSuccess() {
-  const n = Math.floor(Math.random() * 5) + 1;
-  return playSound(`success${n}.ogg`);
-}
-
-function showGear(show) {
-  document.getElementById("gear").style.display = show ? "flex" : "none";
-  if (!show) document.getElementById("settings").style.display = "none";
-}
-
-function showBack(show) {
-  document.getElementById("back-btn").style.display = show ? "block" : "none";
-}
-
-function toggleSettings() {
-  const panel = document.getElementById("settings");
-  panel.style.display = panel.style.display === "block" ? "none" : "block";
-}
-
-function toggleMusic() {
-  musicEnabled = !musicEnabled;
-  document.getElementById("music-btn").textContent = musicEnabled ? "Вкл" : "Выкл";
-  document.getElementById("music-btn").style.background = musicEnabled ? "#5cb85c" : "#d9534f";
-  if (musicEnabled && document.getElementById("games").style.display === "block") {
-    playBgMusic();
-  } else {
-    stopMusic();
-  }
-}
-
-function playBgMusic() {
-  if (!musicEnabled || !audioUnlocked) return;
-  stopMusic();
-  bgMusic.currentTime = 0;
-  bgMusic.play().catch(()=>{});
-}
-
-function stopMusic() {
-  bgMusic.pause();
-  bgMusic.currentTime = 0;
-  welcomeSound.pause();
-  welcomeSound.currentTime = 0;
-}
-
-function changeCount(type, delta) {
-  if (type === "letter") {
-    letterChoices = Math.max(3, Math.min(10, letterChoices + delta));
-    document.getElementById("letter-display").textContent = letterChoices;
-  } else {
-    maxShapes = Math.max(1, Math.min(12, maxShapes + delta));
-    document.getElementById("shapes-display-setting").textContent = maxShapes;
-  }
-}
-
-function startWelcome() {
-  unlockAudio();
-  document.getElementById("menu").style.display = "none";
-  document.getElementById("games").style.display = "block";
-  showGear(true);
-  showBack(false);
-
-  if (!welcomePlayed) {
-    welcomePlayed = true;
-    welcomeSound.play().catch(()=>{});
-    welcomeSound.addEventListener("ended", () => {
-      if (musicEnabled) playBgMusic();
-    }, { once: true });
-  } else {
-    if (musicEnabled) playBgMusic();
-  }
-}
-
-function startGame(game) {
-  stopMusic();
-  showGear(false);
-  showBack(true);
-  document.getElementById("games").style.display = "none";
-  document.getElementById(game).style.display = "block";
-  if (game === "letters") startLetters();
-  if (game === "numbers") startNumbers();
-  if (game === "alphabet") buildAlphabet();
-  if (game === "count") buildCount();
-}
-
-function backToMenu() {
-  ["letters","numbers","alphabet","count"].forEach(id => document.getElementById(id).style.display = "none");
-  document.getElementById("games").style.display = "block";
-  showGear(true);
-  showBack(false);
-  if (musicEnabled) playBgMusic();
-}
-
-function startLetters() {
-  currentLetter = letters[Math.floor(Math.random()*letters.length)];
-  document.getElementById("repeat-btn").textContent = "Повтори";
-  document.getElementById("repeat-btn").onclick = playCurrentLetter;
-  buildLetterChoices();
-  const question = playSound("find_letter.ogg");
-  if (question) {
-    question.addEventListener("ended", () => setTimeout(playCurrentLetter, 200), { once: true });
-  } else {
-    setTimeout(playCurrentLetter, 1800);
-  }
-}
-
-function playCurrentLetter() {
-  playSound(getLetterFile(currentLetter));
-}
-
-function buildLetterChoices() {
-  const container = document.getElementById("letter-choices");
-  container.innerHTML = "";
-  const choices = [currentLetter];
-  while (choices.length < letterChoices) {
-    const l = letters[Math.floor(Math.random()*letters.length)];
-    if (!choices.includes(l)) choices.push(l);
-  }
-  choices.sort(() => Math.random()-0.5);
-  choices.forEach(l => {
-    const div = document.createElement("div");
-    div.className = "letter";
-    div.textContent = l;
-    div.onclick = () => {
-      if (l === currentLetter) {
-        playSuccess();
-        document.getElementById("repeat-btn").textContent = "Продолжить";
-        document.getElementById("repeat-btn").onclick = startLetters;
-      } else {
-        playSound("wrong.ogg");
-      }
-    };
-    container.appendChild(div);
-  });
-}
-
-function startNumbers() {
-  playSound("how_many.ogg");
-  const count = Math.floor(Math.random() * maxShapes) + 1;
-  const shape = shapes[Math.floor(Math.random() * shapes.length)];
-  const color = colors[Math.floor(Math.random() * colors.length)];
-  let shapesHtml = "";
-  for (let i = 0; i < count; i++) {
-    shapesHtml += `<div class="shape-box" style="color:${color}">${shape}</div>`;
-  }
-  document.getElementById("number-question").innerHTML =
-    `<h2>Сколько фигур?</h2><div id="shapes-container">${shapesHtml}</div>`;
-  const container = document.getElementById("number-choices");
-  container.innerHTML = "";
-  let opts = [count];
-  while (opts.length < 4) {
-    const x = Math.floor(Math.random() * 12) + 1;
-    if (!opts.includes(x)) opts.push(x);
-  }
-  opts.sort(() => Math.random()-0.5).forEach(num => {
-    const div = document.createElement("div");
-    div.className = "num";
-    div.textContent = num;
-    div.onclick = () => {
-      if (num === count) {
-        const success = playSuccess();
-        if (success) {
-          success.addEventListener("ended", () => startNumbers(), { once: true });
-        } else {
-          setTimeout(startNumbers, 800);
-        }
-      } else playSound("wrong.ogg");
-    };
-    container.appendChild(div);
-  });
-}
-
-function buildAlphabet() {
-  const container = document.getElementById("alphabet-grid");
-  container.innerHTML = "";
-  letters.forEach(l => {
-    const div = document.createElement("div");
-    div.className = "letter";
-    div.textContent = l;
-    div.onclick = () => playSound(getLetterFile(l));
-    container.appendChild(div);
-  });
-}
-
-function buildCount() {
-  const container = document.getElementById("count-grid");
-  container.innerHTML = "";
-  numbers.forEach(n => {
-    const div = document.createElement("div");
-    div.className = "num";
-    div.textContent = n;
-    div.onclick = () => playSound(`number_${n}.ogg`);
-    container.appendChild(div);
-  });
-}
-
-document.getElementById("menu").style.display = "block";
-showGear(true);
-showBack(false);
-</script>
+<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
+<p class="p1"><span class="s1">&lt;html lang="ru"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;head&gt;</span></p>
+<p class="p1"><span class="s1">&lt;meta charset="UTF-8"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"&gt;</span></p>
+<p class="p1"><span class="s1">&lt;title&gt;Учимся читать и считать&lt;/title&gt;</span></p>
+<p class="p1"><span class="s1">&lt;style&gt;</span></p>
+<p class="p1"><span class="s1">* { box-sizing: border-box; margin: 0; padding: 0; }</span></p>
+<p class="p1"><span class="s1">body {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: #e8f4fc url('background.png') no-repeat center center fixed;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background-size: cover;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-family: Arial, sans-serif;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>min-height: 100vh;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>flex-direction: column;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">#gear {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>position: fixed; top: 12px; right: 12px; font-size: 30px; cursor: pointer; z-index: 1000;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: rgba(255,255,255,0.92); border-radius: 50%; width: 50px; height: 50px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">#back-btn {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>position: fixed; top: 12px; left: 12px; z-index: 1000;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 17px; padding: 8px 14px; background: #4a90e2; color: white;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.25);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: none;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">#settings {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: none; position: fixed; top: 70px; right: 12px; background: white; padding: 14px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); z-index: 999; text-align: left; min-width: 210px;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">#app {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>flex: 1;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>flex-direction: column;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: center;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>width: 100%;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>max-width: 900px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin: 0 auto;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 55px 8px 15px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>text-align: center;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">button {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 24px; padding: 14px 28px; margin: 10px; border: none; border-radius: 14px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: #4a90e2; color: white; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.2);</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">button:hover { background: #357abd; }</span></p>
+<p class="p1"><span class="s1">.letter-grid, .number-grid {<span class="Apple-converted-space"> </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 16px 0;<span class="Apple-converted-space"> </span></span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">.letter, .num {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>width: 72px; height: 72px; font-size: 36px; display: flex; align-items: center; justify-content: center;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: white; border-radius: 14px; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>flex: 0 0 auto;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">.letter:hover, .num:hover { background: #d0e8ff; }</span></p>
+<p class="p1"><span class="s1">#start-btn { font-size: 28px; padding: 18px 36px; background: #ff6b6b; }</span></p>
+<p class="p1"><span class="s1">#menu, #games, #letters, #numbers, #alphabet, #count { display: none; width: 100%; }</span></p>
+<p class="p1"><span class="s1">.setting-row { margin: 8px 0; display: flex; align-items: center; gap: 8px; }</span></p>
+<p class="p1"><span class="s1">.setting-row button { font-size: 18px; padding: 4px 10px; margin: 0; }</span></p>
+<p class="p1"><span class="s1">#music-btn { background: #5cb85c; font-size: 16px; padding: 5px 12px; }</span></p>
+<p class="p1"><span class="s1">#shapes-container {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>flex-wrap: wrap;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: center;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>gap: 12px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin: 18px auto;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>max-width: 92%;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">.shape-box {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>width: 68px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>height: 68px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 48px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: center;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: rgba(255,255,255,0.95);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 14px;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>box-shadow: 0 2px 6px rgba(0,0,0,0.12);</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">#repeat-btn { font-size: 22px; padding: 12px 24px; margin: 10px 0; }</span></p>
+<p class="p1"><span class="s1">h2 { margin: 6px 0 8px; font-size: 28px; }</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">@media (max-width: 600px) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.letter, .num { width: 64px; height: 64px; font-size: 32px; }</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>.shape-box { width: 60px; height: 60px; font-size: 42px; }</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>button { font-size: 20px; padding: 12px 24px; margin: 8px; }</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>#start-btn { font-size: 24px; padding: 16px 32px; }</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>#app { padding-top: 50px; }</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>h2 { font-size: 26px; }</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p1"><span class="s1">&lt;/style&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
+<p class="p1"><span class="s1">&lt;body&gt;</span></p>
+<p class="p1"><span class="s1">&lt;div id="gear" onclick="toggleSettings()"&gt;⚙️&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">&lt;button id="back-btn" onclick="backToMenu()"&gt;← другая игра&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">&lt;div id="settings"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;p&gt;&lt;strong&gt;Настройки&lt;/strong&gt;&lt;/p&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="setting-row"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>Music: &lt;button id="music-btn" onclick="toggleMusic()"&gt;Вкл&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="setting-row"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>Letters: &lt;button onclick="changeCount('letter', -1)"&gt;−&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;span id="letter-display"&gt;4&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button onclick="changeCount('letter', 1)"&gt;+&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="setting-row"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>Shapes: &lt;button onclick="changeCount('shapes', -1)"&gt;−&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;span id="shapes-display-setting"&gt;5&lt;/span&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button onclick="changeCount('shapes', 1)"&gt;+&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;br&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;button onclick="toggleSettings()" style="font-size:15px;padding:6px 12px;"&gt;Закрыть&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;div id="app"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="menu"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button id="start-btn" onclick="startWelcome()"&gt;Учимся читать и писать&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="games"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button onclick="startGame('letters')"&gt;Буквы&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button onclick="startGame('numbers')"&gt;Считай&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button onclick="startGame('alphabet')"&gt;Алфавит&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button onclick="startGame('count')"&gt;Цифры&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="letters"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;h2&gt;Найди букву&lt;/h2&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button id="repeat-btn" onclick="playCurrentLetter()"&gt;Повтори&lt;/button&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="letter-grid" id="letter-choices"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="numbers"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div id="number-question"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="number-grid" id="number-choices"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="alphabet"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="letter-grid" id="alphabet-grid"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="count"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="number-grid" id="count-grid"&gt;&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;script&gt;</span></p>
+<p class="p1"><span class="s1">const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split("");</span></p>
+<p class="p1"><span class="s1">const numbers = Array.from({length:21}, (_,i)=&gt;i);</span></p>
+<p class="p1"><span class="s1">const shapes = ["●", "■", "▲", "★", "♦", "♥"];</span></p>
+<p class="p1"><span class="s1">const colors = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6", "#e91e63", "#00bcd4", "#ff5722", "#8bc34a", "#673ab7"];</span></p>
+<p class="p1"><span class="s1">let currentLetter = "";</span></p>
+<p class="p1"><span class="s1">let welcomeSound = new Audio("welcome.ogg");</span></p>
+<p class="p1"><span class="s1">let bgMusic = new Audio("music.ogg");</span></p>
+<p class="p1"><span class="s1">bgMusic.loop = true;</span></p>
+<p class="p1"><span class="s1">bgMusic.volume = 0.06;</span></p>
+<p class="p1"><span class="s1">let audioUnlocked = false;</span></p>
+<p class="p1"><span class="s1">let musicEnabled = true;</span></p>
+<p class="p1"><span class="s1">let welcomePlayed = false;</span></p>
+<p class="p1"><span class="s1">let letterChoices = 4;</span></p>
+<p class="p1"><span class="s1">let maxShapes = 5;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function getLetterFile(letter) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return letter === "Ё" ? "letter_yo.ogg" : `letter_${letter}.ogg`;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function unlockAudio() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (audioUnlocked) return;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>audioUnlocked = true;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>new Audio().play().catch(()=&gt;{});</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function playSound(name) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (!audioUnlocked) return null;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const a = new Audio(name);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>a.play().catch(()=&gt;{});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return a;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function playSuccess() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const n = Math.floor(Math.random() * 5) + 1;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return playSound(`success${n}.ogg`);</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function showGear(show) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("gear").style.display = show ? "flex" : "none";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (!show) document.getElementById("settings").style.display = "none";</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function showBack(show) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("back-btn").style.display = show ? "block" : "none";</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function toggleSettings() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const panel = document.getElementById("settings");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>panel.style.display = panel.style.display === "block" ? "none" : "block";</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function toggleMusic() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>musicEnabled = !musicEnabled;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("music-btn").textContent = musicEnabled ? "Вкл" : "Выкл";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("music-btn").style.background = musicEnabled ? "#5cb85c" : "#d9534f";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (musicEnabled &amp;&amp; document.getElementById("games").style.display === "block") {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>playBgMusic();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>} else {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>stopMusic();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function playBgMusic() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (!musicEnabled || !audioUnlocked) return;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>stopMusic();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>bgMusic.currentTime = 0;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>bgMusic.play().catch(()=&gt;{});</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function stopMusic() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>bgMusic.pause();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>bgMusic.currentTime = 0;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>welcomeSound.pause();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>welcomeSound.currentTime = 0;</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function changeCount(type, delta) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (type === "letter") {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>letterChoices = Math.max(3, Math.min(10, letterChoices + delta));</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>document.getElementById("letter-display").textContent = letterChoices;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>} else {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>maxShapes = Math.max(1, Math.min(12, maxShapes + delta));</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>document.getElementById("shapes-display-setting").textContent = maxShapes;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function startWelcome() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>unlockAudio();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("menu").style.display = "none";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("games").style.display = "block";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>showGear(true);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>showBack(false);</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (!welcomePlayed) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>welcomePlayed = true;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>welcomeSound.play().catch(()=&gt;{});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>welcomeSound.addEventListener("ended", () =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (musicEnabled) playBgMusic();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}, { once: true });</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>} else {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (musicEnabled) playBgMusic();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function startGame(game) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>stopMusic();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>showGear(false);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>showBack(true);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("games").style.display = "none";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById(game).style.display = "block";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (game === "letters") startLetters();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (game === "numbers") startNumbers();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (game === "alphabet") buildAlphabet();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (game === "count") buildCount();</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function backToMenu() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>["letters","numbers","alphabet","count"].forEach(id =&gt; document.getElementById(id).style.display = "none");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("games").style.display = "block";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>showGear(true);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>showBack(false);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (musicEnabled) playBgMusic();</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function startLetters() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>currentLetter = letters[Math.floor(Math.random()*letters.length)];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("repeat-btn").textContent = "Повтори";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("repeat-btn").onclick = playCurrentLetter;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>buildLetterChoices();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const question = playSound("find_letter.ogg");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (question) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>question.addEventListener("ended", () =&gt; setTimeout(playCurrentLetter, 200), { once: true });</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>} else {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>setTimeout(playCurrentLetter, 1800);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function playCurrentLetter() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>playSound(getLetterFile(currentLetter));</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function buildLetterChoices() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const container = document.getElementById("letter-choices");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>container.innerHTML = "";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const choices = [currentLetter];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>while (choices.length &lt; letterChoices) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const l = letters[Math.floor(Math.random()*letters.length)];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (!choices.includes(l)) choices.push(l);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>choices.sort(() =&gt; Math.random()-0.5);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>choices.forEach(l =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const div = document.createElement("div");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.className = "letter";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.textContent = l;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.onclick = () =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (l === currentLetter) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>playSuccess();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>document.getElementById("repeat-btn").textContent = "Продолжить";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>document.getElementById("repeat-btn").onclick = startLetters;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>} else {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>playSound("wrong.ogg");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>};</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>container.appendChild(div);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>});</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function startNumbers() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>playSound("how_many.ogg");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const count = Math.floor(Math.random() * maxShapes) + 1;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const shape = shapes[Math.floor(Math.random() * shapes.length)];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const color = colors[Math.floor(Math.random() * colors.length)];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>let shapesHtml = "";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>for (let i = 0; i &lt; count; i++) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>shapesHtml += `&lt;div class="shape-box" style="color:${color}"&gt;${shape}&lt;/div&gt;`;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById("number-question").innerHTML =</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>`&lt;h2&gt;Сколько фигур?&lt;/h2&gt;&lt;div id="shapes-container"&gt;${shapesHtml}&lt;/div&gt;`;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const container = document.getElementById("number-choices");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>container.innerHTML = "";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>let opts = [count];</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>while (opts.length &lt; 4) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const x = Math.floor(Math.random() * 12) + 1;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (!opts.includes(x)) opts.push(x);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>opts.sort(() =&gt; Math.random()-0.5).forEach(num =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const div = document.createElement("div");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.className = "num";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.textContent = num;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.onclick = () =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (num === count) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const success = playSuccess();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>if (success) {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>success.addEventListener("ended", () =&gt; startNumbers(), { once: true });</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>} else {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>setTimeout(startNumbers, 800);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>} else playSound("wrong.ogg");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>};</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>container.appendChild(div);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>});</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function buildAlphabet() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const container = document.getElementById("alphabet-grid");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>container.innerHTML = "";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>letters.forEach(l =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const div = document.createElement("div");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.className = "letter";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.textContent = l;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.onclick = () =&gt; playSound(getLetterFile(l));</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>container.appendChild(div);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>});</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">function buildCount() {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const container = document.getElementById("count-grid");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>container.innerHTML = "";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>numbers.forEach(n =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const div = document.createElement("div");</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.className = "num";</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.textContent = n;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>div.onclick = () =&gt; playSound(`number_${n}.ogg`);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>container.appendChild(div);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>});</span></p>
+<p class="p1"><span class="s1">}</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">document.getElementById("menu").style.display = "block";</span></p>
+<p class="p1"><span class="s1">showGear(true);</span></p>
+<p class="p1"><span class="s1">showBack(false);</span></p>
+<p class="p1"><span class="s1">&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
 </body>
 </html>
